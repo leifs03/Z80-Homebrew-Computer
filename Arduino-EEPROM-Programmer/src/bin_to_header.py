@@ -1,7 +1,6 @@
 import sys
 
-
-def convert_file_to_c_header(input_file, output_file):
+def convert_file_to_c_header(input_file, output_file="data.hpp"):
     try:
         with open(input_file, 'rb') as f:
             data = f.read()
@@ -42,11 +41,13 @@ def convert_file_to_c_header(input_file, output_file):
     except Exception as e:
         print(f"Error writing output file: {e}")
 
-
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: python convert_to_c_header.py <input_file> <output_file>")
-    else:
+    if len(sys.argv) == 2:
+        input_file = sys.argv[1]
+        convert_file_to_c_header(input_file)
+    elif len(sys.argv) == 3:
         input_file = sys.argv[1]
         output_file = sys.argv[2]
         convert_file_to_c_header(input_file, output_file)
+    else:
+        print("Usage: python convert_to_c_header.py <input_file> [output_file]")
