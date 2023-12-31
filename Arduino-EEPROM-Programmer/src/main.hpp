@@ -47,4 +47,9 @@ void writeBinary();
  */
 bool verifyBinary();
 
+/**
+ * @brief Disables the EEPROM's software write lock, if enabled
+ */
+void disableSoftwareLock();
+
 #endif //ARDUINO_EEPROM_PROGRAMMER_MAIN_HPP

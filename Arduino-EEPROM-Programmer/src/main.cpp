@@ -13,17 +13,44 @@
 
 #define ROM_SIZE 0x2000
 
+#ifdef __AVR_ATmega2560__
+  const byte CLOCKOUT = 11;  // Mega 2560
+#else
+  const byte CLOCKOUT = 9;   // Uno, Duemilanove, etc.
+#endif
+
 void setup()
 {
+    // Clock output for rapid switching between programmer and system
+    pinMode (CLOCKOUT, OUTPUT); 
+    TCCR1A = bit (COM1A0);
+    TCCR1B = bit (WGM12) | bit (CS10);
+    OCR1A = 1;
+
+
+
     Serial.begin(9600);
     Serial.print("Initializing Pins.\n");
     initializePins();
+
+    // AT28C models are locked for 5ms after power on
+    delay(10);
+
+    disableSoftwareLock();
 
     Serial.print("Writing EEPROM.\n");
     writeBinary();
 
     Serial.print("\nWrite successful. Verifying.\n");
-    bool isVerified = verifyBinary();
+    bool isVerified = true;
+    
+    for(int i = 0; i < 3; i++)
+    {
+        isVerified = verifyBinary();
+        if(!isVerified) { break; }
+        Serial.print("\n\n");
+    }
+    
 
     if(isVerified)
     {
@@ -44,30 +71,18 @@ void loop()
  */
 void initializePins()
 {
-    pinMode(Z80_CLK, OUTPUT);
-    pinMode(Z80_BUSREQB, OUTPUT);
-    pinMode(Z80_BUSACKB, INPUT);
+
     pinMode(ROM_CEB, OUTPUT);
     pinMode(ROM_WEB, OUTPUT);
     pinMode(ROM_OEB, OUTPUT);
-    pinMode(RAM_CEB, OUTPUT);
 
     digitalWrite(ROM_CEB, HIGH);
     digitalWrite(ROM_WEB, HIGH);
-    digitalWrite(ROM_OEB, LOW);  // Handled by CPU for now
-    digitalWrite(RAM_CEB, HIGH); // Disable RAM
-    digitalWrite(Z80_BUSREQB, LOW);  // Request access to the bus
-    while(digitalRead(Z80_BUSACKB)) // Wait for CPU to give access to the bus
-    {
-        digitalWrite(Z80_CLK, LOW);
-        digitalWrite(Z80_CLK, HIGH);
-    }
-
-    digitalWrite(ROM_OEB, HIGH); // Disable Output
+    digitalWrite(ROM_OEB, HIGH);
 
     for(int pin = 22; pin <=53; pin++)
     {
-        pinMode(pin, OUTPUT); // Now safe to control address/data/control bus
+        pinMode(pin, OUTPUT);
     }
 }
 
@@ -81,7 +96,7 @@ void setAddressBus(uint16_t address)
 {
     uint8_t i = 0;
     // Address pins are physically interlaced
-    for(uint8_t pin = AD0; pin <= AD15; pin += 2)
+    for(uint8_t pin = AD0; pin <= AD14; pin += 2)
     {
         digitalWrite(pin, (address >> i) & 1);
         i++;
@@ -112,7 +127,7 @@ uint8_t readByte(uint16_t address)
     digitalWrite(ROM_CEB, LOW);
 
     // Wait for ROM to respond
-    delayMicroseconds(10);
+    delayMicroseconds(1);
 
     // Read data bus
     for(uint8_t pin = D0; pin <= D7; pin += 2)
@@ -158,8 +173,10 @@ void writeByte(uint16_t address, uint8_t value)
     digitalWrite(ROM_WEB, LOW);
     digitalWrite(ROM_CEB, LOW);
 
-    // Wait for write to finish with ~180 ns
-    asm volatile("nop\n\tnop\n\tnop");
+    
+    // Wait for write to finish
+    asm volatile("nop\nnop\nnop"); // ~180ns delay
+
 
     // Disable ROM
     digitalWrite(ROM_CEB, HIGH);
@@ -172,7 +189,7 @@ void writeByte(uint16_t address, uint8_t value)
     }
 
     // Wait for ROM to refresh
-    delay(1);
+    delay(10);
 }
 
 
@@ -234,4 +251,23 @@ bool verifyBinary()
     }
 
     return isVerified;
+}
+
+
+
+/**
+ * @brief Disables the EEPROM's software write lock, if enabled
+ */
+void disableSoftwareLock()
+{
+    // From AT28C64B datasheet
+    writeByte(0x1555, 0xAA);
+    writeByte(0x0AAA, 0x55);
+    writeByte(0x1555, 0x80);
+    writeByte(0x1555, 0xAA);
+    writeByte(0x0AAA, 0x55);
+    writeByte(0x1555, 0x20);
+
+    // Wait for page write cycle to end
+    delay(10);
 }
