@@ -4,6 +4,9 @@
 ; AUTHOR : leifs
 ; TARGET : z80-ceres8-none, SjASMPlus
 
+    IFNDEF CONSTS_ASM_
+    DEFINE CONSTS_ASM_
+
 ; *** CHARS ***
 U_ARROW     EQU     $5C
 D_ARROW     EQU     $6C
@@ -30,43 +33,44 @@ R_ARROW     EQU     $8C
 ; *** MENUS ***
 
 ; Splash screen at system startup
-mSplash:    Menu    $0000,\
+mSplash:    Menu    mhSplash,\
                     <15,"DnD Dice Roller">,\
                     <16,"By Leif :)     ",D_ARROW>,\
                     0,\
                     0
 
 ; Select die to roll
-mDieSelect: Menu    $0000,\
+mDieSelect: Menu    mhDieSelect,\
                     <16,"Die Select:    ",D_ARROW>,\
                     <31,"D4 D6 D8 D10 D12 D20 D100 Custom">,\
                     8,\
                     <0,3,6,9,13,17,21,26>
 
 ; Select number of dice to roll
-mDieCount:  Menu    $0000,\
+mDieCount:  Menu    mhDieCount,\
                     <16,"Num. Dice:   ",L_ARROW,' ',R_ARROW>,\
                     "\0",\
                     1,\
                     0
 
 ; Die modifier, only displayed when rolling one die
-mDieMod:    Menu    $0000,\
+mDieMod:    Menu    mhDieMod,\
                     <16,"Roll As:       ",D_ARROW>,\
                     <11,"Reg Adv Dis">,\
                     3,\
                     <0,4,8>
 
 ; Display total rolled
-mTotal:     Menu    $0000,\
+mTotal:     Menu    mhTotal,\
                     <13,"You Rolled...">,\
                     "\0",\
                     0,\
                     0
 
 ; Rolling animation. May be used if I feel like it.
-mAnim:      Menu    $0000,\
+mAnim:      Menu    mAnim,\
                     "\0",\
                     "\0",\
                     0,\
                     0
+    ENDIF

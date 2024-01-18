@@ -4,26 +4,33 @@
 ; AUTHOR : leifs
 ; TARGET : z80-ceres8-none, SjASMPlus
 
+    IFNDEF VARIABLES_ASM_
+    DEFINE VARIABLES_ASM_
+
     ORG $4000
 
     STRUCT ButtonState
-        BYTE LastState                  ; The previous button state
-        BYTE CurrentState               ; The current button state
-        BYTE ButtonSummary              ; Bit 0, isPressed, Bit 1, hasChanged
+LastState           BYTE                ; The previous button state
+CurrentState        BYTE                ; The current button state
+ButtonSummary       BYTE                ; Bit 0, isPressed, Bit 1, hasChanged
     ENDS
 
     STRUCT DiceState
-        BYTE DieSides                   ; Highest number a die can roll
-        BYTE NumDice                    ; The number of dice to roll
-        BYTE Modifier                   ; Roll at advantage/disadvantage
-        WORD Total                      ; Final dice roll
+DieSides            BYTE                ; Highest number a die can roll
+NumDice             BYTE                ; The number of dice to roll
+Modifier            BYTE                ; Roll at advantage/disadvantage
+Total               WORD                ; Final dice roll
     ENDS
 
     STRUCT ProgramState
-        BYTE CurrentMenu
-        WORD MenuHandler
+CursorPos   BYTE
+Menu        WORD
     ENDS
 
 diceState DiceState
 
 buttonState ButtonState
+
+programState ProgramState
+
+    ENDIF

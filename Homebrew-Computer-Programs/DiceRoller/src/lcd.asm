@@ -62,7 +62,7 @@ lcdInit     PUSH    BC                  ; Store C parameter for later
 ; CLOBBERS: A
 lcdClear    LD      A, %00000001
             OUT     (LCD_REG), A
-            CALL    lcd_wait
+            CALL    lcdWait
             RET
 
 
@@ -74,7 +74,7 @@ lcdClear    LD      A, %00000001
 ; CLOBBERS: A
 lcdRethome  LD      A, %00000010
             OUT     (LCD_REG), A
-            CALL    lcd_wait
+            CALL    lcdWait
             RET
 
 
