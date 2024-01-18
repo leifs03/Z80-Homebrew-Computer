@@ -1,0 +1,385 @@
+# file opened: src/main.asm
+  1   0000              ; FILE   : main.asm
+  2   0000              ; PROJECT: Dice Roller
+  3   0000              ; BRIEF  : Handles the main program loop
+  4   0000              ; AUTHOR : leifs
+  5   0000              ; TARGET : z80-ceres8-none, SjASMPlus
+  6   0000
+  7   0000                  ORG $0000
+  8   0000
+  9   0000 31 FF FF     start       LD	    SP, $FFFF           ; Set stack to top of RAM
+ 10   0003 CD 09 00                 CALL    lcd_init
+ 11   0006
+ 12   0006 C3 06 00     .loop       JP	    .loop
+ 13   0009
+ 14   0009
+ 15   0009                  ; Includes put at the end b/c SjASM doesn't support linking
+ 16   0009                  INCLUDE "lcd.asm"
+# file opened: src/lcd.asm
+  1+  0009              ; FILE   : lcd.asm
+  2+  0009              ; PROJECT: Dice Roller
+  3+  0009              ; BRIEF  : Implements functions to control the LCD
+  4+  0009              ; AUTHOR : leifs
+  5+  0009              ; TARGET : z80-ceres8-none, SjASMPlus
+  6+  0009
+  7+  0009                  IFNDEF LCD_ASM_
+  8+  0009                  DEFINE LCD_ASM_
+  9+  0009
+ 10+  0009              LCD_REG     EQU     $00
+ 11+  0009              LCD_RAM     EQU     $01
+ 12+  0009
+ 13+  0009              ; FUNCTION: lcd_init
+ 14+  0009              ; BRIEF   : Initializes the LCD
+ 15+  0009              ; PARAMS  : C - Cursor Off/On (0/1)
+ 16+  0009              ; RETURN  : None
+ 17+  0009              ; CLOBBERS: A
+ 18+  0009 C5           lcd_init    PUSH    BC                  ; Store C parameter for later
+ 19+  000A
+ 20+  000A 01 08 0C                 LD      BC, $0C08           ; Wait >15ms for LCD reset sequence
+ 21+  000D 10 FE        .waitloop   DJNZ    $
+ 22+  000F 0D                       DEC     C
+ 23+  0010 20 FB                    JR      NZ, .waitloop
+ 24+  0012
+ 25+  0012 3E 38                    LD      A, %00111000        ; Set: 8-bit, 16x2 chars, 5x8 font
+ 26+  0014 D3 00                    OUT     (LCD_REG), A
+ 27+  0016
+ 28+  0016 06 0C                    LD      B, 12               ; Wait >37us before next command
+ 29+  0018 10 FE                    DJNZ    $
+ 30+  001A
+ 31+  001A D3 00                    OUT     (LCD_REG), A        ; Repeat to comply with datasheet
+ 32+  001C 06 0C                    LD      B, 12
+ 33+  001E 10 FE                    DJNZ    $
+ 34+  0020
+ 35+  0020 3E 0C                    LD      A, %00001100        ; Display on, cursor off
+ 36+  0022
+ 37+  0022 C1                       POP     BC                  ; Restore C for parameter
+ 38+  0023 CB 09                    RRC     C                   ; Check bit 0 instead of comparing to 1
+ 39+  0025 30 02                    JR      NC, .nocursor       ; If C = 1, turn cursor on
+ 40+  0027 C6 03                    ADD     A, %00000011
+ 41+  0029
+ 42+  0029 D3 00        .nocursor   OUT     (LCD_REG), A
+ 43+  002B CD 60 00                 CALL    lcd_wait
+ 44+  002E
+ 45+  002E 3E 01                    LD      A, %00000001        ; Clear Display
+ 46+  0030 D3 00                    OUT     (LCD_REG), A
+ 47+  0032 CD 60 00                 CALL    lcd_wait
+ 48+  0035
+ 49+  0035 3E 06                    LD      A, %00000110        ; Entry Mode: Increment, no shift
+ 50+  0037 D3 00                    OUT     (LCD_REG), A
+ 51+  0039 CD 60 00                 CALL    lcd_wait
+ 52+  003C
+ 53+  003C C9                       RET
+ 54+  003D
+ 55+  003D
+ 56+  003D
+ 57+  003D
+ 58+  003D              ; FUNCTION: lcd_clear
+ 59+  003D              ; BRIEF   : Clears the LCD
+ 60+  003D              ; PARAMS  : None
+ 61+  003D              ; RETURN  : None
+ 62+  003D              ; CLOBBERS: A
+ 63+  003D              lcd_clear
+ 64+  003D 3E 01                    LD      A, %00000001
+ 65+  003F D3 00                    OUT     (LCD_REG), A
+ 66+  0041 CD 60 00                 CALL    lcd_wait
+ 67+  0044 C9                       RET
+ 68+  0045
+ 69+  0045
+ 70+  0045
+ 71+  0045
+ 72+  0045              ; FUNCTION: lcd_rethome
+ 73+  0045              ; BRIEF   : Returns the cursor to 0,0
+ 74+  0045              ; PARAMS  : None
+ 75+  0045              ; RETURN  : None
+ 76+  0045              ; CLOBBERS: A
+ 77+  0045              lcd_rethome
+ 78+  0045
+ 79+  0045 3E 02                    LD      A, %00000010
+ 80+  0047 D3 00                    OUT     (LCD_REG), A
+ 81+  0049 CD 60 00                 CALL    lcd_wait
+ 82+  004C C9                       RET
+ 83+  004D
+ 84+  004D
+ 85+  004D
+ 86+  004D
+ 87+  004D              ; FUNCTION: lcd_movcur
+ 88+  004D              ; BRIEF   : Moves the cursor to a new position
+ 89+  004D              ; PARAMS  : B - Column: 0-15, C - Row 0-1
+ 90+  004D              ; RETURN  : None
+ 91+  004D              ; CLOBBERS: A, B, C
+ 92+  004D 47           lcd_movcur  LD      B, A                ; Load column
+ 93+  004E E6 0F                    AND     $0F                 ; Keep within screen bounds
+ 94+  0050
+ 95+  0050 CB 09                    RRC     C                   ; Check if on second row
+ 96+  0052 30 02                    JR      NC, .firstrow
+ 97+  0054 C6 40                    ADD     A, $40              ; Second row starts at $40
+ 98+  0056
+ 99+  0056 B7 F6 80     .firstrow   OR      A, %10000000        ; Set bit 7 to format as LCD instruction
+100+  0059
+101+  0059 D3 00                    OUT     (LCD_REG), A
+102+  005B
+103+  005B 06 0C                    LD      B, 12               ; Busy wait, since polling resets cursor
+104+  005D 10 FE                    DJNZ    $
+105+  005F
+106+  005F C9                       RET
+107+  0060
+108+  0060
+109+  0060
+110+  0060
+111+  0060              ; FUNCTION: lcd_wait
+112+  0060              ; BRIEF   : Waits until LCD is not busy
+113+  0060              ; PARAMS  : None
+114+  0060              ; RETURN  : None
+115+  0060              ; CLOBBERS: A
+116+  0060 C5           lcd_wait    PUSH    BC
+117+  0061
+118+  0061 06 0C                    LD      B, 12               ; Wait >80us before polling again
+119+  0063 10 FE                    DJNZ    $
+120+  0065
+121+  0065 DB 00                    IN      A, (LCD_REG)        ; Read LCD Status, busy flag is bit 7
+122+  0067 07                       RLCA
+123+  0068 38 F6                    JR      C, lcd_wait
+124+  006A
+125+  006A C1                       POP     BC
+126+  006B C9                       RET
+127+  006C
+128+  006C                  ENDIF
+129+  006C
+# file closed: src/lcd.asm
+ 17   006C                  INCLUDE "consts.asm"
+# file opened: src/consts.asm
+  1+  006C              ; FILE   : consts.asm
+  2+  006C              ; PROJECT: Dice Roller
+  3+  006C              ; BRIEF  : Defines several data constants
+  4+  006C              ; AUTHOR : leifs
+  5+  006C              ; TARGET : z80-ceres8-none, SjASMPlus
+  6+  006C
+  7+  006C              ; *** CHARS ***
+  8+  006C              U_ARROW     EQU     $5C
+  9+  006C              D_ARROW     EQU     $6C
+ 10+  006C              L_ARROW     EQU     $7C
+ 11+  006C              R_ARROW     EQU     $8C
+ 12+  006C
+ 13+  006C              ; *** STRUCTS ***
+ 14+  006C
+ 15+  006C                  ; MACRO: Menu
+ 16+  006C                  ; BRIEF: Data structure for a Menu object
+ 17+  006C                  ; PARAM: Handler, Address to menu handler function
+ 18+  006C                  ; PARAM: TopStr, Pascal-style string to display on first row
+ 19+  006C                  ; PARAM: BotStr, Pascal-style string of entries to display on second row.
+ 20+  006C                  ; PARAM: EntryCount, Number of entries in menu. Can be 0.
+ 21+  006C                  ; PARAM: EntryPos, Array of positions of each entry in the menu.
+ 22+  006C                  MACRO Menu Handler, TopStr, BotStr, EntryCount, EntryPos
+ 23+  006C ~                    WORD Handler
+ 24+  006C ~                    BYTE TopStr
+ 25+  006C ~                    BYTE BotStr
+ 26+  006C ~                    BYTE EntryCount
+ 27+  006C ~                    BYTE EntryPos
+ 28+  006C                  ENDM
+ 29+  006C
+ 30+  006C              ; *** MENUS ***
+ 31+  006C
+ 36+  006C              mSplash:    Menu    $0000,                    <15,"DnD Dice Roller">,                    <16,"By Leif :)     ",R_ARROW>,                    0,                    0
+ 36+  006C 00 00       >        WORD $0000
+ 36+  006E 0F 44 6E 44 >        BYTE 15,"DnD Dice Roller"
+ 36+  0072 20 44 69 63 >
+ 36+  0076 65 20 52 6F >
+ 36+  007A 6C 6C 65 72 >
+ 36+  007E 10 42 79 20 >        BYTE 16,"By Leif :)     ",R_ARROW
+ 36+  0082 4C 65 69 66 >
+ 36+  0086 20 3A 29 20 >
+ 36+  008A 20 20 20 20 >
+ 36+  008E 8C          >
+ 36+  008F 00          >        BYTE 0
+ 36+  0090 00          >        BYTE 0
+ 37+  0091
+ 42+  0091              mDieSelect: Menu    $0000,                    <11,"Die Select:">,                    <31,"D2 D4 D6 D8 D10 D20 D100 Custom">,                    8,                    <0,3,6,9,12,16,20,25>
+ 42+  0091 00 00       >        WORD $0000
+ 42+  0093 0B 44 69 65 >        BYTE 11,"Die Select:"
+ 42+  0097 20 53 65 6C >
+ 42+  009B 65 63 74 3A >
+ 42+  009F 1F 44 32 20 >        BYTE 31,"D2 D4 D6 D8 D10 D20 D100 Custom"
+ 42+  00A3 44 34 20 44 >
+ 42+  00A7 36 20 44 38 >
+ 42+  00AB 20 44 31 30 >
+ 42+  00AF 20 44 32 30 >
+ 42+  00B3 20 44 31 30 >
+ 42+  00B7 30 20 43 75 >
+ 42+  00BB 73 74 6F 6D >
+ 42+  00BF 08          >        BYTE 8
+ 42+  00C0 00 03 06 09 >        BYTE 0,3,6,9,12,16,20,25
+ 42+  00C4 0C 10 14 19 >
+ 43+  00C8
+ 48+  00C8              mDieCount:  Menu    $0000,                    <14,"Num. Dice:   ",U_ARROW>,                    "\0",                    1,                    0
+ 48+  00C8 00 00       >        WORD $0000
+ 48+  00CA 0E 4E 75 6D >        BYTE 14,"Num. Dice:   ",U_ARROW
+ 48+  00CE 2E 20 44 69 >
+ 48+  00D2 63 65 3A 20 >
+ 48+  00D6 20 20 5C    >
+ 48+  00D9 00          >        BYTE "\0"
+ 48+  00DA 01          >        BYTE 1
+ 48+  00DB 00          >        BYTE 0
+ 49+  00DC
+ 54+  00DC              mDieMod:    Menu    $0000,                    <16,"Roll As:       ",D_ARROW>,                    <11,"Reg Adv Dis">,                    3,                    <0,4,8>
+ 54+  00DC 00 00       >        WORD $0000
+ 54+  00DE 10 52 6F 6C >        BYTE 16,"Roll As:       ",D_ARROW
+ 54+  00E2 6C 20 41 73 >
+ 54+  00E6 3A 20 20 20 >
+ 54+  00EA 20 20 20 20 >
+ 54+  00EE 6C          >
+ 54+  00EF 0B 52 65 67 >        BYTE 11,"Reg Adv Dis"
+ 54+  00F3 20 41 64 76 >
+ 54+  00F7 20 44 69 73 >
+ 54+  00FB 03          >        BYTE 3
+ 54+  00FC 00 04 08    >        BYTE 0,4,8
+ 55+  00FF
+ 60+  00FF              mTotal:     Menu    $0000,                    <13,"You Rolled...">,                    "\0",                    0,                    0
+ 60+  00FF 00 00       >        WORD $0000
+ 60+  0101 0D 59 6F 75 >        BYTE 13,"You Rolled..."
+ 60+  0105 20 52 6F 6C >
+ 60+  0109 6C 65 64 2E >
+ 60+  010D 2E 2E       >
+ 60+  010F 00          >        BYTE "\0"
+ 60+  0110 00          >        BYTE 0
+ 60+  0111 00          >        BYTE 0
+ 61+  0112
+ 66+  0112              mAnim:      Menu    $0000,                    "\0",                    "\0",                    0,                    0
+ 66+  0112 00 00       >        WORD $0000
+ 66+  0114 00          >        BYTE "\0"
+ 66+  0115 00          >        BYTE "\0"
+ 66+  0116 00          >        BYTE 0
+ 66+  0117 00          >        BYTE 0
+ 67+  0118
+# file closed: src/consts.asm
+# file closed: src/main.asm
+# file opened: src/lcd.asm
+  1   0118              ; FILE   : lcd.asm
+  2   0118              ; PROJECT: Dice Roller
+  3   0118              ; BRIEF  : Implements functions to control the LCD
+  4   0118              ; AUTHOR : leifs
+  5   0118              ; TARGET : z80-ceres8-none, SjASMPlus
+  6   0118
+  7   0118                  IFNDEF LCD_ASM_
+  8   0118 ~                DEFINE LCD_ASM_
+  9   0118 ~
+ 10   0118 ~            LCD_REG     EQU     $00
+ 11   0118 ~            LCD_RAM     EQU     $01
+ 12   0118 ~
+ 13   0118 ~            ; FUNCTION: lcd_init
+ 14   0118 ~            ; BRIEF   : Initializes the LCD
+ 15   0118 ~            ; PARAMS  : C - Cursor Off/On (0/1)
+ 16   0118 ~            ; RETURN  : None
+ 17   0118 ~            ; CLOBBERS: A
+ 18   0118 ~            lcd_init    PUSH    BC                  ; Store C parameter for later
+ 19   0118 ~
+ 20   0118 ~                        LD      BC, $0C08           ; Wait >15ms for LCD reset sequence
+ 21   0118 ~            .waitloop   DJNZ    $
+ 22   0118 ~                        DEC     C
+ 23   0118 ~                        JR      NZ, .waitloop
+ 24   0118 ~
+ 25   0118 ~                        LD      A, %00111000        ; Set: 8-bit, 16x2 chars, 5x8 font
+ 26   0118 ~                        OUT     (LCD_REG), A
+ 27   0118 ~
+ 28   0118 ~                        LD      B, 12               ; Wait >37us before next command
+ 29   0118 ~                        DJNZ    $
+ 30   0118 ~
+ 31   0118 ~                        OUT     (LCD_REG), A        ; Repeat to comply with datasheet
+ 32   0118 ~                        LD      B, 12
+ 33   0118 ~                        DJNZ    $
+ 34   0118 ~
+ 35   0118 ~                        LD      A, %00001100        ; Display on, cursor off
+ 36   0118 ~
+ 37   0118 ~                        POP     BC                  ; Restore C for parameter
+ 38   0118 ~                        RRC     C                   ; Check bit 0 instead of comparing to 1
+ 39   0118 ~                        JR      NC, .nocursor       ; If C = 1, turn cursor on
+ 40   0118 ~                        ADD     A, %00000011
+ 41   0118 ~
+ 42   0118 ~            .nocursor   OUT     (LCD_REG), A
+ 43   0118 ~                        CALL    lcd_wait
+ 44   0118 ~
+ 45   0118 ~                        LD      A, %00000001        ; Clear Display
+ 46   0118 ~                        OUT     (LCD_REG), A
+ 47   0118 ~                        CALL    lcd_wait
+ 48   0118 ~
+ 49   0118 ~                        LD      A, %00000110        ; Entry Mode: Increment, no shift
+ 50   0118 ~                        OUT     (LCD_REG), A
+ 51   0118 ~                        CALL    lcd_wait
+ 52   0118 ~
+ 53   0118 ~                        RET
+ 54   0118 ~
+ 55   0118 ~
+ 56   0118 ~
+ 57   0118 ~
+ 58   0118 ~            ; FUNCTION: lcd_clear
+ 59   0118 ~            ; BRIEF   : Clears the LCD
+ 60   0118 ~            ; PARAMS  : None
+ 61   0118 ~            ; RETURN  : None
+ 62   0118 ~            ; CLOBBERS: A
+ 63   0118 ~            lcd_clear
+ 64   0118 ~                        LD      A, %00000001
+ 65   0118 ~                        OUT     (LCD_REG), A
+ 66   0118 ~                        CALL    lcd_wait
+ 67   0118 ~                        RET
+ 68   0118 ~
+ 69   0118 ~
+ 70   0118 ~
+ 71   0118 ~
+ 72   0118 ~            ; FUNCTION: lcd_rethome
+ 73   0118 ~            ; BRIEF   : Returns the cursor to 0,0
+ 74   0118 ~            ; PARAMS  : None
+ 75   0118 ~            ; RETURN  : None
+ 76   0118 ~            ; CLOBBERS: A
+ 77   0118 ~            lcd_rethome
+ 78   0118 ~
+ 79   0118 ~                        LD      A, %00000010
+ 80   0118 ~                        OUT     (LCD_REG), A
+ 81   0118 ~                        CALL    lcd_wait
+ 82   0118 ~                        RET
+ 83   0118 ~
+ 84   0118 ~
+ 85   0118 ~
+ 86   0118 ~
+ 87   0118 ~            ; FUNCTION: lcd_movcur
+ 88   0118 ~            ; BRIEF   : Moves the cursor to a new position
+ 89   0118 ~            ; PARAMS  : B - Column: 0-15, C - Row 0-1
+ 90   0118 ~            ; RETURN  : None
+ 91   0118 ~            ; CLOBBERS: A, B, C
+ 92   0118 ~            lcd_movcur  LD      B, A                ; Load column
+ 93   0118 ~                        AND     $0F                 ; Keep within screen bounds
+ 94   0118 ~
+ 95   0118 ~                        RRC     C                   ; Check if on second row
+ 96   0118 ~                        JR      NC, .firstrow
+ 97   0118 ~                        ADD     A, $40              ; Second row starts at $40
+ 98   0118 ~
+ 99   0118 ~            .firstrow   OR      A, %10000000        ; Set bit 7 to format as LCD instruction
+100   0118 ~
+101   0118 ~                        OUT     (LCD_REG), A
+102   0118 ~
+103   0118 ~                        LD      B, 12               ; Busy wait, since polling resets cursor
+104   0118 ~                        DJNZ    $
+105   0118 ~
+106   0118 ~                        RET
+107   0118 ~
+108   0118 ~
+109   0118 ~
+110   0118 ~
+111   0118 ~            ; FUNCTION: lcd_wait
+112   0118 ~            ; BRIEF   : Waits until LCD is not busy
+113   0118 ~            ; PARAMS  : None
+114   0118 ~            ; RETURN  : None
+115   0118 ~            ; CLOBBERS: A
+116   0118 ~            lcd_wait    PUSH    BC
+117   0118 ~
+118   0118 ~                        LD      B, 12               ; Wait >80us before polling again
+119   0118 ~                        DJNZ    $
+120   0118 ~
+121   0118 ~                        IN      A, (LCD_REG)        ; Read LCD Status, busy flag is bit 7
+122   0118 ~                        RLCA
+123   0118 ~                        JR      C, lcd_wait
+124   0118 ~
+125   0118 ~                        POP     BC
+126   0118 ~                        RET
+127   0118 ~
+128   0118                  ENDIF
+129   0118
+# file closed: src/lcd.asm
