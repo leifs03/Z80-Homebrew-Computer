@@ -39,9 +39,9 @@ mSplash:    Menu    $0000,\
 ; Select die to roll
 mDieSelect: Menu    $0000,\
                     <16,"Die Select:    ",D_ARROW>,\
-                    <31,"D2 D4 D6 D8 D10 D20 D100 Custom">,\
+                    <31,"D4 D6 D8 D10 D12 D20 D100 Custom">,\
                     8,\
-                    <0,3,6,9,12,16,20,25>
+                    <0,3,6,9,13,17,21,26>
 
 ; Select number of dice to roll
 mDieCount:  Menu    $0000,\

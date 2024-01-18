@@ -10,12 +10,12 @@
 LCD_REG     EQU     $00
 LCD_RAM     EQU     $01
 
-; FUNCTION: lcd_init
+; FUNCTION: lcdInit
 ; BRIEF   : Initializes the LCD
 ; PARAMS  : C - Cursor Off/On (0/1)
 ; RETURN  : None
 ; CLOBBERS: A
-lcd_init    PUSH    BC                  ; Store C parameter for later
+lcdInit    PUSH    BC                  ; Store C parameter for later
 
             LD      BC, $0C08           ; Wait >15ms for LCD reset sequence
 .waitloop   DJNZ    $
@@ -40,27 +40,27 @@ lcd_init    PUSH    BC                  ; Store C parameter for later
             ADD     A, %00000011
 
 .nocursor   OUT     (LCD_REG), A
-            CALL    lcd_wait
+            CALL    lcdWait
 
             LD      A, %00000001        ; Clear Display
             OUT     (LCD_REG), A
-            CALL    lcd_wait
+            CALL    lcdWait
 
             LD      A, %00000110        ; Entry Mode: Increment, no shift
             OUT     (LCD_REG), A
-            CALL    lcd_wait
+            CALL    lcdWait
 
             RET
 
 
 
 
-; FUNCTION: lcd_clear
+; FUNCTION: lcdClear
 ; BRIEF   : Clears the LCD
 ; PARAMS  : None
 ; RETURN  : None
 ; CLOBBERS: A
-lcd_clear
+lcdClear
             LD      A, %00000001
             OUT     (LCD_REG), A
             CALL    lcd_wait
@@ -69,12 +69,12 @@ lcd_clear
 
 
 
-; FUNCTION: lcd_rethome
+; FUNCTION: lcdRethome
 ; BRIEF   : Returns the cursor to 0,0
 ; PARAMS  : None
 ; RETURN  : None
 ; CLOBBERS: A
-lcd_rethome
+lcdRethome
 
             LD      A, %00000010
             OUT     (LCD_REG), A
@@ -84,12 +84,12 @@ lcd_rethome
 
 
 
-; FUNCTION: lcd_movcur
+; FUNCTION: lcdMovcur
 ; BRIEF   : Moves the cursor to a new position
 ; PARAMS  : B - Column: 0-15, C - Row 0-1
 ; RETURN  : None
 ; CLOBBERS: A, B, C
-lcd_movcur  LD      B, A                ; Load column
+lcdMovcur  LD      B, A                ; Load column
             AND     $0F                 ; Keep within screen bounds
 
             RRC     C                   ; Check if on second row
@@ -108,19 +108,19 @@ lcd_movcur  LD      B, A                ; Load column
 
 
 
-; FUNCTION: lcd_wait
+; FUNCTION: lcdWait
 ; BRIEF   : Waits until LCD is not busy
 ; PARAMS  : None
 ; RETURN  : None
 ; CLOBBERS: A
-lcd_wait    PUSH    BC
+lcdWait    PUSH    BC
 
             LD      B, 12               ; Wait >80us before polling again
             DJNZ    $
 
             IN      A, (LCD_REG)        ; Read LCD Status, busy flag is bit 7
             RLCA
-            JR      C, lcd_wait
+            JR      C, lcdWait
 
             POP     BC
             RET
