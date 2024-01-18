@@ -8,7 +8,8 @@ LST=${BUILD_DIR}/${PROJECT_NAME}.lst
 SYM=${BUILD_DIR}/${PROJECT_NAME}.sym
 
 SRC_DIR=src
-SRCS=${SRC_DIR}/main.asm ${SRC_DIR}/lcd.asm ${SRC_DIR}/main.asm
+SRCS=${SRC_DIR}/main.asm ${SRC_DIR}/lcd.asm ${SRC_DIR}/main.asm ${SRC_DIR}/variables.asm \
+${SRC_DIR}/menu.asm
 
 AFLAGS=--raw=${BIN} --lst=${LST} --sym=${SYM}
 
