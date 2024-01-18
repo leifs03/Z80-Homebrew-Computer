@@ -9,6 +9,11 @@
 
     ORG $4000
 
+    STRUCT ProgramState
+EntrySel    BYTE                        ; Menu entry selection
+Menu        WORD                        ; Pointer to current menu object
+    ENDS
+
     STRUCT ButtonState
 LastState           BYTE                ; The previous button state
 CurrentState        BYTE                ; The current button state
@@ -22,15 +27,10 @@ Modifier            BYTE                ; Roll at advantage/disadvantage
 Total               WORD                ; Final dice roll
     ENDS
 
-    STRUCT ProgramState
-CursorPos   BYTE
-Menu        WORD
-    ENDS
-
-diceState DiceState
+programState ProgramState
 
 buttonState ButtonState
 
-programState ProgramState
+diceState DiceState
 
     ENDIF
