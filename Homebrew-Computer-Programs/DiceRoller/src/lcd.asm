@@ -15,10 +15,11 @@ LCD_RAM     EQU     $01
 ; PARAMS  : C - Cursor Off/On (0/1)
 ; RETURN  : None
 ; CLOBBERS: A
-lcdInit    PUSH    BC                  ; Store C parameter for later
+lcdInit     PUSH    BC                  ; Store C parameter for later
 
-            LD      BC, $0C08           ; Wait >15ms for LCD reset sequence
-.waitloop   DJNZ    $
+            LD      C, $08              ; Wait >15ms for LCD reset sequence
+.waitloop   LD      B, $0C
+            DJNZ    $
             DEC     C
             JR      NZ, .waitloop
 
@@ -54,18 +55,15 @@ lcdInit    PUSH    BC                  ; Store C parameter for later
 
 
 
-
 ; FUNCTION: lcdClear
 ; BRIEF   : Clears the LCD
 ; PARAMS  : None
 ; RETURN  : None
 ; CLOBBERS: A
-lcdClear
-            LD      A, %00000001
+lcdClear    LD      A, %00000001
             OUT     (LCD_REG), A
             CALL    lcd_wait
             RET
-
 
 
 
@@ -74,13 +72,10 @@ lcdClear
 ; PARAMS  : None
 ; RETURN  : None
 ; CLOBBERS: A
-lcdRethome
-
-            LD      A, %00000010
+lcdRethome  LD      A, %00000010
             OUT     (LCD_REG), A
             CALL    lcd_wait
             RET
-
 
 
 
@@ -89,7 +84,7 @@ lcdRethome
 ; PARAMS  : B - Column: 0-15, C - Row 0-1
 ; RETURN  : None
 ; CLOBBERS: A, B, C
-lcdMovcur  LD      B, A                ; Load column
+lcdMovcur   LD      B, A                ; Load column
             AND     $0F                 ; Keep within screen bounds
 
             RRC     C                   ; Check if on second row
@@ -97,7 +92,6 @@ lcdMovcur  LD      B, A                ; Load column
             ADD     A, $40              ; Second row starts at $40
 
 .firstrow   OR      A, %10000000        ; Set bit 7 to format as LCD instruction
-
             OUT     (LCD_REG), A
 
             LD      B, 12               ; Busy wait, since polling resets cursor
@@ -107,13 +101,12 @@ lcdMovcur  LD      B, A                ; Load column
 
 
 
-
 ; FUNCTION: lcdWait
 ; BRIEF   : Waits until LCD is not busy
 ; PARAMS  : None
 ; RETURN  : None
 ; CLOBBERS: A
-lcdWait    PUSH    BC
+lcdWait     PUSH    BC
 
             LD      B, 12               ; Wait >80us before polling again
             DJNZ    $
