@@ -8,10 +8,10 @@
     DEFINE CONSTS_ASM_
 
 ; *** CHARS ***
-U_ARROW     EQU     $5C
-D_ARROW     EQU     $6C
-L_ARROW     EQU     $7C
-R_ARROW     EQU     $8C
+U_ARROW     EQU     $C5
+D_ARROW     EQU     $C6
+L_ARROW     EQU     $C7
+R_ARROW     EQU     $C8
 
 ; *** STRUCTS ***
 

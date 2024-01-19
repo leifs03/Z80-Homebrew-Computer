@@ -45,6 +45,7 @@ memInit     PUSH    BC
 .initprgm   LD      HL, programState    ; Initialize program state
             LDI     (HL), 0
             LDI     (HL), 0
+            LDI     (HL), 0
 
             LD      BC, mhSplash        ; Initial menu handler
             LD      (HL), BC

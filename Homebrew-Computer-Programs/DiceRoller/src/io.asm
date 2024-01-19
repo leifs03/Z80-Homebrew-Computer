@@ -81,11 +81,14 @@ printChar   PUSH    BC
 ; FUNCTION: printStr
 ; BRIEF   : Prints a pascal-style string to the LCD
 ; PARAMS  : HL - Pointer to string
-; RETURN  : None
+; RETURN  : HL - Pointer to 1 byte after string
 ; CLOBBERS: A
 printStr    PUSH    BC
 
+            XOR     A                   ; Clear A
+
             LDI     B, (HL)             ; Load size of string into B
+            CP      B                   ; Check if 0
             JR      Z, .end             ; If size 0, skip to end
 
 .loop       LDI     A, (HL)             ; Load character

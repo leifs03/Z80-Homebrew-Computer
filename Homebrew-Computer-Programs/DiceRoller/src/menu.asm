@@ -13,15 +13,22 @@
 ; RETURN  : None
 ; CLOBBERS: HL
 loadMenu    PUSH    BC
-            LD      BC, (HL)            ; Load function pointer from menu
-            LD      HL, programState
-            LDI     (HL), C             ; Load handler into program state
-            LDI     (HL), B
+            PUSH    DE
 
-            XOR     A, A                ; Reset entry and cursor position
-            LDI     (HL), A
-            LDI     (HL), A
+            LD      BC, programState
 
+            XOR     A                   ; Zero out program state
+
+            LDI     (BC), A
+            LDI     (BC), A
+            LDI     (BC), A
+
+            LDI     A, (HL)             ; Load func pointer from menu to state
+            LDI     (BC), A
+            LD      A, (HL)
+            LD      (BC), A
+
+            POP     DE
             POP     BC
             RET
 
@@ -31,7 +38,33 @@ loadMenu    PUSH    BC
 ; BRIEF   : Menu handler for the Splash menu
 ; PARAMS  : None
 ; RETURN  : None
-mhSplash    RET
+; CLOBBERS: A, BC, HL
+mhSplash    LD      HL, programState.MenuState
+            LD      A, (HL)             ; Check MenuState status
+            AND     A                   ; If not set, print menu string
+            JR      NZ, .noprint
+
+.print      LD      (HL), 1             ; Set MenuState so string is not redone
+
+            CALL lcdClear
+
+            LD      HL, mSplash+2       ; Menu object begins with function ptr
+            CALL    printStr
+
+            LD      B, 0                ; Move cursor to second row
+            LD      C, 1
+            CALL    lcdMovcur
+
+            CALL    printStr            ; HL left at start of string
+
+.noprint    LD      A, (buttonState.ButtonSummary+3) ; Load right button state
+            CP      %00000011           ; See if button has just been pressed
+            JP      NZ, .end
+
+.nextmenu   LD      HL, mDieSelect      ; Load next menu
+            CALL    loadMenu
+
+.end        RET
 
 
 
@@ -72,5 +105,9 @@ mhTotal     RET
 ; PARAMS  : None
 ; RETURN  : None
 mhAnim      RET
+
+    INCLUDE "io.asm"
+    INCLUDE "consts.asm"
+    INCLUDE "variables.asm"
 
     ENDIF

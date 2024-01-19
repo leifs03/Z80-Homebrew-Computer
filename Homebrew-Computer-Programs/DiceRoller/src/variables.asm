@@ -12,6 +12,7 @@
     STRUCT ProgramState
 EntrySel            BYTE                ; Menu entry selection
 CursorPos           BYTE                ; Cursor position in string
+MenuState           BYTE                ; For menu handler to keep its own state
 MenuHandler         WORD                ; Pointer to current menu handler
     ENDS
 
