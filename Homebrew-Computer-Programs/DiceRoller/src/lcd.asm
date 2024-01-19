@@ -107,13 +107,13 @@ lcdMovcur   LD      B, A                ; Load column
 ; RETURN  : None
 ; CLOBBERS: A
 lcdWait     PUSH    BC
-
+.loop
             LD      B, 12               ; Wait >80us before polling again
             DJNZ    $
 
             IN      A, (LCD_REG)        ; Read LCD Status, busy flag is bit 7
             RLCA
-            JR      C, lcdWait
+            JR      C, .loop
 
             POP     BC
             RET

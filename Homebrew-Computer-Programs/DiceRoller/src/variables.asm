@@ -10,15 +10,15 @@
     ORG $4000
 
     STRUCT ProgramState
-EntrySel    BYTE                        ; Menu entry selection
-CursorPos   BYTE                        ; Cursor position in string
-MenuHandler WORD                        ; Pointer to current menu handler
+EntrySel            BYTE                ; Menu entry selection
+CursorPos           BYTE                ; Cursor position in string
+MenuHandler         WORD                ; Pointer to current menu handler
     ENDS
 
     STRUCT ButtonState
-LastState           BYTE                ; The previous button state
 CurrentState        BYTE                ; The current button state
-ButtonSummary       BYTE                ; Bit 0, isPressed, Bit 1, hasChanged
+LastState           BYTE                ; The previous button state
+ButtonSummary       DWORD               ; Bit 0, isPressed, Bit 1, hasChanged
     ENDS
 
     STRUCT DiceState

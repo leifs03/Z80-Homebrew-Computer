@@ -4,6 +4,7 @@
 ; AUTHOR : leifs
 ; TARGET : z80-ceres8-none, SjASMPlus
 
+    DEVICE NOSLOT64K
     ORG $0000
 
 start       LD	    SP, $FFFF           ; Set stack to top of RAM
@@ -29,7 +30,7 @@ start       LD	    SP, $FFFF           ; Set stack to top of RAM
 memInit     PUSH    BC
 
             LD      HL, diceState       ; Zero out dice and button states
-            LD      B, 8                ; 3 bytes in buttons, 5 in dice
+            LD      B, 11               ; 6 bytes in buttons, 5 in dice
 .clrstates  LDI     (HL), 0
             DJNZ    .clrstates
 
@@ -50,3 +51,4 @@ memInit     PUSH    BC
     INCLUDE "menu.asm"
     INCLUDE "consts.asm"
     INCLUDE "variables.asm"
+    INCLUDE "io.asm"
