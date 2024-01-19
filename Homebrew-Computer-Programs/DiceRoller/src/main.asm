@@ -12,11 +12,13 @@ start       LD	    SP, $FFFF           ; Set stack to top of RAM
             CALL    lcdInit
 
 .loop
+            CALL    readButtons
+
 .fakecall   ; Fakes a function call by manually pushing an address before jump,
             ; Because there is no register-addressed CALL instruction.
             LD      BC, .afterfake
             PUSH    BC
-            LD      HL, programState.MenuHandler
+            LD      HL, (programState.MenuHandler)
             JP      (HL)
 
 .afterfake  JP	    .loop
@@ -50,5 +52,5 @@ memInit     PUSH    BC
     INCLUDE "lcd.asm"
     INCLUDE "menu.asm"
     INCLUDE "consts.asm"
-    INCLUDE "variables.asm"
     INCLUDE "io.asm"
+    INCLUDE "variables.asm"

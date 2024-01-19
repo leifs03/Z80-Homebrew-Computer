@@ -32,6 +32,7 @@ readButtons PUSH    BC
 .updatesumm LD      HL, buttonState.ButtonSummary
             LD      C, 0
 
+            LD      B, 4
 .pressloop  LDI     (HL), C             ; Reset summary entry
             RRCA                        ; Check if button is pressed
             JR      NC, .ploopchk       ; If not, move to next iteration

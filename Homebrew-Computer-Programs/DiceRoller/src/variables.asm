@@ -7,7 +7,7 @@
     IFNDEF VARIABLES_ASM_
     DEFINE VARIABLES_ASM_
 
-    ORG $4000
+    DISP $8000
 
     STRUCT ProgramState
 EntrySel            BYTE                ; Menu entry selection
@@ -33,5 +33,7 @@ programState ProgramState
 buttonState ButtonState
 
 diceState DiceState
+
+    ENT
 
     ENDIF
