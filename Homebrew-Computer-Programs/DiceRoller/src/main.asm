@@ -30,11 +30,17 @@ start       LD	    SP, $FFFF           ; Set stack to top of RAM
 ; PARAMS  : None
 ; RETURN  : None
 memInit     PUSH    BC
+            PUSH    HL
 
-            LD      HL, diceState       ; Zero out dice and button states
-            LD      B, 11               ; 6 bytes in buttons, 5 in dice
-.clrstates  LDI     (HL), 0
-            DJNZ    .clrstates
+            LD      HL, diceState       ; Zero out dice state
+            LD      B, 4
+.clrdice    LDI     (HL), 0
+            DJNZ    .clrdice
+
+            LD      HL, buttonState
+            LD      B, 6
+.clrbtn     LDI     (HL), 0
+            DJNZ    .clrbtn
 
 .initprgm   LD      HL, programState    ; Initialize program state
             LDI     (HL), 0
@@ -43,6 +49,7 @@ memInit     PUSH    BC
             LD      BC, mhSplash        ; Initial menu handler
             LD      (HL), BC
 
+            POP     HL
             POP     BC
             RET
 

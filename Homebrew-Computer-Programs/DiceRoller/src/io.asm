@@ -25,7 +25,7 @@ readButtons PUSH    BC
 
 .readin     IN      A, (BUTTONS)
             CPL                         ; Buttons inverted (pulled high)
-            AND     A, $0F              ; Only lower 4 bits are mapped
+            AND     $0F                 ; Only lower 4 bits are mapped
 
             LD      (HL), A             ; Store new CurrentState
 
@@ -33,25 +33,27 @@ readButtons PUSH    BC
             LD      C, 0
 
             LD      B, 4
-.pressloop  LDI     (HL), C             ; Reset summary entry
+.pressloop  LD      (HL), C             ; Reset summary entry
             RRCA                        ; Check if button is pressed
             JR      NC, .ploopchk       ; If not, move to next iteration
-
             INC     (HL)                ; Set Bit 0 (isPressed)
-.ploopchk   DJNZ    .pressloop
+
+.ploopchk   INC     HL
+            DJNZ    .pressloop
 
             LD      HL, buttonState.CurrentState
 
 .changes    LDI     A, (HL)             ; Load CurrentState
             LDI     B, (HL)             ; Load LastState
-            XOR     A, B                ; Only set changed bits
+            XOR     B                   ; Only set changed bits
 
             LD      B, 4
 .changeloop RRCA                        ; Check if button has changed
             JR      NC, .cloopchk       ; If not, move to next iteration
-
             SET     1, (HL)             ; Set Bit 1 (hasChanged)
-.cloopchk   DJNZ    .changeloop
+
+.cloopchk   INC     HL
+            DJNZ    .changeloop
 
             POP     HL
             POP     DE
