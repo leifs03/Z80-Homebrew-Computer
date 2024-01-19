@@ -11,7 +11,19 @@
 ; BRIEF   : Resets the program state and loads a new menu
 ; PARAMS  : HL - Pointer to Menu object
 ; RETURN  : None
-loadMenu    RET
+; CLOBBERS: HL
+loadMenu    PUSH    BC
+            LD      BC, (HL)            ; Load function pointer from menu
+            LD      HL, programState
+            LDI     (HL), C             ; Load handler into program state
+            LDI     (HL), B
+
+            XOR     A, A                ; Reset entry and cursor position
+            LDI     (HL), A
+            LDI     (HL), A
+
+            POP     BC
+            RET
 
 
 
