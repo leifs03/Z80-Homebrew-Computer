@@ -11,7 +11,7 @@
 
     STRUCT ProgramState
 EntrySel    BYTE                        ; Menu entry selection
-Menu        WORD                        ; Pointer to current menu object
+MenuHandler WORD                        ; Pointer to current menu handler
     ENDS
 
     STRUCT ButtonState
