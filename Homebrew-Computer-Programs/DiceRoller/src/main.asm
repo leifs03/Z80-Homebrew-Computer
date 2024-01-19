@@ -10,7 +10,20 @@ start       LD	    SP, $FFFF           ; Set stack to top of RAM
             CALL    memInit
             CALL    lcdInit
 
-.loop       JP	    .loop
+.loop
+.fakecall   ; Fakes a function call by manually pushing an address, and then
+            ; doing nested indirection to jump to the menu's function pointer.
+            ; Note: I hate this.
+            LD      BC, .afterfake
+            PUSH    BC
+            LD      HL, (programState.Menu)
+            ; HL has a pointer to a Menu Object
+            ; At (HL), there is a function pointer
+            LD      DE, (HL)            ; DE indirectly loads the function ptr
+            EX      DE, HL              ; HL has the function ptr
+            JP      (HL)                ; Jump to the loaded function ptr
+
+.afterfake  JP	    .loop
 
 
 
@@ -20,20 +33,15 @@ start       LD	    SP, $FFFF           ; Set stack to top of RAM
 ; RETURN  : None
 memInit     PUSH    BC
 
-            LD      HL, diceState
-            LD      B, 5
-.clrdice    LDI     (HL), 0             ; Zero out dice state
-            DJNZ    .clrdice
-
-            LD      HL, buttonState
-            LD      B, 3
-.clrbutton  LDI     (HL), 0             ; Zero out button state
-            DJNZ    .clrbutton
+            LD      HL, diceState       ; Zero out dice and button states
+            LD      B, 8                ; 3 bytes in buttons, 5 in dice
+.clrbtndice LDI     (HL), 0
+            DJNZ    .clrbtndice
 
 .initprgm   LD      HL, programState    ; Initialize program state
             LDI     (HL), 0
 
-            LD      BC, mhSplash        ; Store menu handler address
+            LD      BC, mSplash         ; Initial menu
             LD      (HL), BC
 
             POP     BC
