@@ -1,0 +1,41 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "dezog",
+            "request": "launch",
+            "name": "Simulator - Z80, 64KB RAM",
+            "remoteType": "zsim",
+            "zsim": {
+                "Z80N": false,
+                "zxKeyboard": false,
+                "ulaScreen": false,
+                "zxBorderWidth": 0,
+                "visualMemory": true,
+                "cpuLoadInterruptRange": 0,
+                "vsyncInterrupt": false,
+                "cpuFrequency": 4000000.0,
+                "memoryModel": "RAM",
+            },
+            "sjasmplus": [
+                {
+                    "path": "build/dice.sld"
+                }
+            ],
+            "commandsAfterLaunch": [],
+            "history": {
+                "reverseDebugInstructionCount": 1000000,
+                "spotCount": 10,
+                "codeCoverageEnabled": true
+            },
+            "startAutomatically": false,
+            "rootFolder": "${workspaceFolder}",
+            "loadObjs": [
+                { "path": "build/dice.bin", "start": "0x0000" }
+            ],
+        }
+    ]
+}
