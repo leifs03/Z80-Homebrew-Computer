@@ -11,8 +11,7 @@ start       LD	    SP, $FFFF           ; Set stack to top of RAM
             CALL    memInit
             CALL    lcdInit
 
-.loop
-            CALL    readButtons
+.loop       CALL    readButtons
 
 .fakecall   ; Fakes a function call by manually pushing an address before jump,
             ; Because there is no register-addressed CALL instruction.
@@ -56,7 +55,7 @@ memInit     PUSH    BC
 
 
 
-    ; Includes put at the end b/c SjASM doesn't support linking
+    ; Includes put at the end b/c SjASMPlus doesn't support linking
     INCLUDE "lcd.asm"
     INCLUDE "menu.asm"
     INCLUDE "consts.asm"

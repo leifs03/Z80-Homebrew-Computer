@@ -13,39 +13,33 @@ BUTTONS     EQU     $02
 ; BRIEF   : Updates the program's button state
 ; PARAMS  : None
 ; RETURN  : None
-; CLOBBERS: A
-readButtons PUSH    BC
-            PUSH    DE
-            PUSH    HL
+; CLOBBERS: A, HL
+readButtons ; Purpose: Read in button states, write to vars if each button
+            ; has been pressed and if its state has changed since last poll.
+            PUSH    BC
+            LD      C, 0                ; Use C as 0 register
 
             LD      HL, buttonState
-
             LDI     A, (HL)             ; Load old CurrentState
             LDD     (HL), A             ; Store in LastState
 
-.readin     IN      A, (BUTTONS)
-            CPL                         ; Buttons inverted (pulled high)
-            AND     $0F                 ; Only lower 4 bits are mapped
-
+            IN      A, (BUTTONS)
             LD      (HL), A             ; Store new CurrentState
 
-.updatesumm LD      HL, buttonState.ButtonSummary
-            LD      C, 0
+            LD      HL, buttonState.ButtonSummary
 
             LD      B, 4
 .pressloop  LD      (HL), C             ; Reset summary entry
             RRCA                        ; Check if button is pressed
-            JR      NC, .ploopchk       ; If not, move to next iteration
+            JR      C, .ploopchk        ; If not, move to next iteration
             INC     (HL)                ; Set Bit 0 (isPressed)
 
 .ploopchk   INC     HL
             DJNZ    .pressloop
 
             LD      HL, buttonState.CurrentState
-
-.changes    LDI     A, (HL)             ; Load CurrentState
-            LDI     B, (HL)             ; Load LastState
-            XOR     B                   ; Only set changed bits
+            LDI     A, (HL)             ; Load CurrentState
+            XOR     (HL)                ; Load changes from LastState
 
             LD      B, 4
 .changeloop RRCA                        ; Check if button has changed
@@ -55,8 +49,6 @@ readButtons PUSH    BC
 .cloopchk   INC     HL
             DJNZ    .changeloop
 
-            POP     HL
-            POP     DE
             POP     BC
             RET
 
@@ -91,12 +83,12 @@ printStr    PUSH    BC
             CP      B                   ; Check if 0
             JR      Z, .end             ; If size 0, skip to end
 
-.loop       LDI     A, (HL)             ; Load character
-            OUT     (LCD_RAM), A        ; Print character
-
-            LD      C, 8                ; Wait for LCD
+.loop       LD      C, 8                ; Wait for LCD
 .busywait   DEC     C
             JR      NZ, .busywait
+
+            LDI     A, (HL)             ; Load character
+            OUT     (LCD_RAM), A        ; Print character
 
             DJNZ    .loop
 

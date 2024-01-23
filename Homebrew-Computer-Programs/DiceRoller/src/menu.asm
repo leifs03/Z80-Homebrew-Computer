@@ -13,8 +13,6 @@
 ; RETURN  : None
 ; CLOBBERS: HL
 loadMenu    PUSH    BC
-            PUSH    DE
-
             LD      BC, programState
 
             XOR     A                   ; Zero out program state
@@ -28,8 +26,25 @@ loadMenu    PUSH    BC
             LD      A, (HL)
             LD      (BC), A
 
-            POP     DE
             POP     BC
+            RET
+
+
+
+; FUNCTION: loadEntires
+; BRIEF   : Prints the entries in a bottom menu, based on ProgramState
+; PARAMS  : HL - Pointer to Menu object
+; RETURN  : None
+; CLOBBERS: None
+loadEntries ; Steps:
+            ; 1. Load string size
+            ; 2. Move pointer to position in program state
+            ; 3. Subtract pointer offset from string size
+            ; 4. Create new string in memory, size 16
+            ; 5. If size >= 16, copy string directly
+            ; 6. If size < 16, fill to 16 with spaces
+            ; 7. Print formatted string
+
             RET
 
 
@@ -44,11 +59,11 @@ mhSplash    LD      HL, programState.MenuState
             AND     A                   ; If not set, print menu string
             JR      NZ, .noprint
 
-.print      LD      (HL), 1             ; Set MenuState so string is not redone
+.print      LD      (HL), 1             ; Set MenuState so print is not redone
 
             CALL lcdClear
 
-            LD      HL, mSplash+2       ; Menu object begins with function ptr
+            LD      HL, mSplash+2       ; First string is after handler ptr
             CALL    printStr
 
             LD      B, 0                ; Move cursor to second row
@@ -59,12 +74,12 @@ mhSplash    LD      HL, programState.MenuState
 
 .noprint    LD      A, (buttonState.ButtonSummary+3) ; Load right button state
             CP      %00000011           ; See if button has just been pressed
-            JP      NZ, .end
+            RET     NZ,
 
 .nextmenu   LD      HL, mDieSelect      ; Load next menu
             CALL    loadMenu
 
-.end        RET
+            RET
 
 
 
