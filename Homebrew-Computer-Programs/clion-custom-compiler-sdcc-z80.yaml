@@ -1,0 +1,44 @@
+compilers:
+  - description: SDCC for Z80
+    match-compiler-exe: "(.*/)?sdcc(.exe)?"
+    match-args: -mz80
+    match-language: C
+    include-dirs:
+      - C:\Program Files\SDCC\bin\..\include\z80
+      - C:\Program Files\SDCC\bin\..\include
+      - C:\Program Files\SDCC\bin\..\non-free\include\z80
+      - C:\Program Files\SDCC\bin\..\non-free\include
+    defines-text: "
+    #define __SDCC_USE_NON_FREE 1
+    #define __SDCC_BITINT_MAXWIDTH 64
+    #define __STDC_VERSION__ 201112L
+    #define __SDCC_INT_LONG_REENT 1
+    #define __STDC_HOSTED__ 1
+    #define __SDCCCALL 1
+    #define __STDC_UTF_16__ 1
+    #define __SIZEOF_FLOAT__ 4
+    #define __SDCC_VERSION_MINOR 4
+    #define __SDCC_z80 1
+    #define __STDC_ISO_10646__ 201409L
+    #define __SDCC_VERSION_PATCH 0
+    #define __SDCC_FLOAT_REENT 1
+    #define __SDCC_VERSION_MAJOR 4
+    #define __STDC_NO_VLA__ 1
+    #define __SDCC 4_4_0
+    #define __STDC_UTF_32__ 1
+    #define __STDC_NO_THREADS__ 1
+    #define __SDCC_CHAR_UNSIGNED 1
+    #define __STDC_NO_ATOMICS__ 1
+    #define __SIZEOF_DOUBLE__ 4
+    #define __SDCC_STACK_AUTO 1
+    #define __STDC__ 1
+    #define __SDCC_REVISION 14620
+    #define __STDC_NO_COMPLEX__ 1
+    
+    #define __sfr
+    #define __at(x) int
+    #define __asm__
+    #define __asm
+    #define __endasm
+    #define __critical
+    "
