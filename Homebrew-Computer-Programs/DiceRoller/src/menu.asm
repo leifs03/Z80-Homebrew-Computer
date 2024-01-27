@@ -35,16 +35,56 @@ loadMenu    PUSH    BC
 ; BRIEF   : Prints the entries in a bottom menu, based on ProgramState
 ; PARAMS  : HL - Pointer to Menu object
 ; RETURN  : None
-; CLOBBERS: None
-loadEntries ; Steps:
-            ; 1. Load string size
-            ; 2. Move pointer to position in program state
-            ; 3. Subtract pointer offset from string size
-            ; 4. Create new string in memory, size 16
-            ; 5. If size >= 16, copy string directly
-            ; 6. If size < 16, fill to 16 with spaces
-            ; 7. Print formatted string
+; CLOBBERS: A
+loadEntries
+; Register Usage:
+; A - Size
+; B - Iterator
+; C - Index
+; D - Character
+; HL - Source String Pointer
+; IX - Destination String Pointer
 
+            PUSH    BC                  ; Be nice, don't clobber all registers
+            PUSH    DE
+            PUSH    HL
+            PUSH    IX
+
+            LD      IX, tempString      ; Actually use IX for once
+            LDI     (IX+0), 16          ; Output is always 16 chars
+
+            XOR     A                   ; Zero reference
+            LDI     B, (HL)             ; Load string size
+
+            CP      B                   ; If size == 0, stop.
+            RET     Z
+
+            LD      A, (programState.CursorPos) ; Load string index
+
+            CP      B                   ; If index > size, stop.
+            RET     NC
+
+            LD      A, B                ; Load string size into A
+            LD      C, A                ; Load string index into C
+            SUB     C                   ; Get size - index for new bounds
+
+            LD      B, 16
+.loop       LDI     D, (HL)             ; Get char from source
+            CP      C                   ; Check if iterator > bounds
+            JR      C, .putchar
+            LD      D, ' '              ; If so, only print spaces
+
+.putchar    LDI     (IX+0), D           ; Put char into destination
+            INC     C                   ; Increment index
+            DJNZ    .loop
+
+.printstr   LD      HL, tmpString
+            CALL    printStr
+
+            POP     IX
+            POP     HL
+            POP     DE
+            POP     BC
             RET
 
 

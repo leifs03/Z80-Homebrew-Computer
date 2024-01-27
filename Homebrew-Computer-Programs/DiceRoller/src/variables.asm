@@ -35,6 +35,8 @@ buttonState ButtonState
 
 diceState DiceState
 
+tmpString           BLOCK 17
+
     ENT
 
     ENDIF
