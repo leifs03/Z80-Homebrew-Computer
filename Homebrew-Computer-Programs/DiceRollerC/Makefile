@@ -6,7 +6,7 @@ CC := sdcc
 AS := sdasz80
 LD := sdcc
 
-CFLAGS := -mz80 -c --allow-unsafe-read --opt-code-speed --max-allocs-per-node 10000 --std sdcc99
+CFLAGS := -mz80 -c --allow-unsafe-read --opt-code-size --max-allocs-per-node 10000 --std sdcc99
 AFLAGS := -g
 LFLAGS := -mz80 --no-std-crt0 --data-loc 0x8000 --code-loc 0x0100
 
@@ -48,7 +48,7 @@ $(IHX): $(ORDERED_OBJS) $(OBJS)
 
 $(BIN): $(IHX)
 	mkdir -p $(@D)
-	objcopy $< $@
+	makebin -p -s 0x2000 < $< > $@
 
 
 

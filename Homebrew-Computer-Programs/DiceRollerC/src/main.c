@@ -5,15 +5,15 @@
  * @author : leifs
  ******************************************************************************/
 
+#include <stdio.h>
 #include <stdbool.h>
 #include "lcd.h"
-#include <stdio.h> // After lcd.h, since lcd provides getchar and putchar.
 
 int main(void)
 {
-    lcd_init(true, false);
+    lcd_init(false, true);
 
-    printf("Hello, World!");
+    puts("Hello, World!   "); // Puts appends \n, even though that doesn't work.
 
     return 0;
 }
