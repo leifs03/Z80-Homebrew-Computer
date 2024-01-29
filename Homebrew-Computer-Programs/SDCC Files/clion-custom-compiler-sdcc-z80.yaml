@@ -36,9 +36,11 @@ compilers:
     #define __STDC_NO_COMPLEX__ 1
     
     #define __sfr
-    #define __at(x) int
+    #define __at(x) unsigned char
     #define __asm__
     #define __asm
     #define __endasm
     #define __critical
+    #define __naked
+    #define __interrupt (x)
     "
