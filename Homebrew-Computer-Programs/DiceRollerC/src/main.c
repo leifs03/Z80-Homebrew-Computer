@@ -5,15 +5,15 @@
  * @author : leifs
  ******************************************************************************/
 
-#include <stdio.h>
 #include <stdbool.h>
 #include "lcd.h"
+#include "ceresio.h"
 
 int main(void)
 {
     lcd_init(false, true);
 
-    puts("Hello, World!   "); // Puts appends \n, even though that doesn't work.
+    print("Hello, World!");
 
     return 0;
 }
