@@ -36,17 +36,15 @@ char* uitoa(uint16_t uint)
     uint8_t str_size = numdigits(uint + 1);
     char* outstr = malloc(str_size);
 
-    uint8_t value = uint;
-    uint8_t next_digit;
+    uint16_t value = uint;
 
     // Place null terminator
     outstr[str_size] = '\0';
-    // Algorithm builds string in reverse
-    for(uint8_t i = str_size; i > 1; --i)
+    for(uint8_t i = 0; i < str_size; ++i)
     {
-        next_digit = value % (uint8_t)(10);
-        value /= (uint16_t)(10);
-        outstr[i] = next_digit;
+        char next_digit = (value % 10) + '0';
+        value /= 10;
+        outstr[str_size - i - 1] = next_digit;
     }
 
     return outstr;
