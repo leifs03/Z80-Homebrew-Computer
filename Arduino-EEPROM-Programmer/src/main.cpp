@@ -203,7 +203,7 @@ void writeBinary()
 
     for(uint16_t i = 0; i < DATA_SIZE; i++)
     {
-        writeByte(i, DATA[i]);
+        writeByte(i, pgm_read_byte_near(DATA + i));
 
         // Progress dots
         if(i != 0)
@@ -227,14 +227,14 @@ bool verifyBinary()
     for(uint16_t i = 0; i < DATA_SIZE; i++)
     {
         uint8_t rom_value = readByte(i);
-        if(rom_value != DATA[i])
+        if(rom_value != pgm_read_byte_near(DATA + i))
         {
             isVerified = false;
 
             Serial.print("\nData mismatch at $");
             Serial.print(i, HEX);
             Serial.print("! Expected: 0x");
-            Serial.print(DATA[i], HEX);
+            Serial.print(pgm_read_byte_near(DATA + i), HEX);
             Serial.print(" Received: 0x");
             Serial.print(rom_value, HEX);
             Serial.print(".\n");

@@ -21,7 +21,7 @@ def convert_file_to_c_header(input_file, output_file="data.hpp"):
             header_file.write(f"#include <stdint.h>\n")
             header_file.write(f"\n")
             header_file.write(f"const uint16_t DATA_SIZE = {size};\n")
-            header_file.write(f"const uint8_t DATA[DATA_SIZE] =\n")
+            header_file.write(f"const PROGMEM uint8_t DATA[DATA_SIZE] =\n")
             header_file.write(f"{{")
 
             for i in range(size):
