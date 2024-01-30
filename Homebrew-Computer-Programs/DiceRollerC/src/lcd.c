@@ -18,6 +18,7 @@ const uint8_t LCDEntrySet = 0b00000110; // Increment on print, no shift
 const uint8_t LCDReturnHome = 0b00000010;
 const uint8_t LCDDisplaySet = 0b00001100; // b0 : blink, b1 : cursor
 const uint8_t LCDSetCursorAddress = 0b10000000; // b0-7 : new address
+const uint8_t LCDSetCGRAMAddress = 0b01000000; // b0-6 : new address
 
 /**
  * @brief Delays long enough for the LCD to process without resetting cursor
@@ -71,17 +72,6 @@ void lcd_init(bool enable_cursor, bool cursor_blink)
 void lcd_clear(void)
 {
     LCDReg = LCDClearScreen;
-    lcd_wait();
-}
-
-
-
-/**
- * @brief Returns the cursor to 0,0
- */
-void lcd_rethome(void)
-{
-    LCDReg = LCDReturnHome;
     lcd_wait();
 }
 

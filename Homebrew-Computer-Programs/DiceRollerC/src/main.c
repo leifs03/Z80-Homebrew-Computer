@@ -10,22 +10,37 @@
 #include "lcd.h"
 #include "ceresio.h"
 #include "rng.h"
+#include "program.h"
+
+ProgramState program_state = {
+    Splash,             // current_menu
+    0, 0, 0, 0, 0,   // Menu & Die info
+    {                   // buttons
+        0, 0,           // last_state and current_state
+        false, false,   // l_button
+        false, false,   // d_button
+        false, false,   // u_button
+        false, false    // r_button
+    }
+};
 
 int main(void)
 {
-    lcd_init(false, true);
+    lcd_init(true, false);
 
     while(true)
     {
-        char* roll = uitoa(xorshift());
-        print(roll);
-        free(roll);
-
-        // Busy loop
-        for(volatile uint16_t i = 0; i < 65535; i++);
-
-        lcd_clear();
+        switch(program_state.current_menu)
+        {
+        case Splash:    mSplash();      break;
+        case DieSelect: mDieSelect();   break;
+        case DieCount:  mDieCount();    break;
+        case DieMod:    mDieMod();      break;
+        case DieZero:   mDieZero();     break;
+        case DieAnim:   mDieAnim();     break;
+        case DieTotal:  mTotal();       break;
+        }
+        xorshift();
+        readButtons(&program_state.buttons);
     }
-
-    return 0;
 }

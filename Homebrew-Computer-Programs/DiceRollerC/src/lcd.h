@@ -11,14 +11,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/*
- * Arrow characters for LCD
- */
-#define U_ARROW 0xC5
-#define D_ARROW 0xC6
-#define L_ARROW 0xC7
-#define R_ARROW 0xC8
-
 /**
  * @brief Initializes the LCD
  * @param enable_cursor Show the cursor on screen
@@ -30,11 +22,6 @@ void lcd_init(bool enable_cursor, bool cursor_blink);
  * @brief Clears the LCD and returns the cursor to 0,0
  */
 void lcd_clear(void);
-
-/**
- * @brief Returns the cursor to 0,0
- */
-void lcd_rethome(void);
 
 /**
  * @brief Moves the cursor to a given row and column

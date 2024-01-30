@@ -29,26 +29,42 @@ void print(char* str)
 
 /**
  * @brief Converts an unsigned integer to an ASCII string
- * @param uint Unsigned integer
- * @return Pointer to string, memory owned by caller
+ * @param num Unsigned integer
+ * @param str Pointer to string, at least 6 characters long.
  */
-char* uitoa(uint16_t uint)
+void uitoa(unsigned int num, char *str)
 {
-    uint8_t str_size = numdigits(uint + 1);
-    char* outstr = malloc(str_size);
+    int i = 0;
 
-    uint16_t value = uint;
-
-    // Place null terminator
-    outstr[str_size] = '\0';
-    for(uint8_t i = 0; i < str_size; ++i)
+    // Handle the case when num is 0 separately
+    if (num == 0)
     {
-        char next_digit = (value % 10) + '0';
-        value /= 10;
-        outstr[str_size - i - 1] = next_digit;
+        str[i++] = '0';
+        str[i] = '\0';
+        return;
     }
 
-    return outstr;
+    // Convert each digit of the number to ASCII and store in the string
+    while (num != 0)
+    {
+        char digit = num % 10; // Extract the rightmost digit
+        str[i++] = digit + '0'; // Convert digit to ASCII and store
+        num /= 10; // Move to the next digit
+    }
+
+    str[i] = '\0'; // Null terminate the string
+
+    // Reverse the string
+    uint8_t start = 0;
+    uint8_t end = i - 1;
+    while(start < end)
+    {
+        char temp = str[start];
+        str[start] = str[end];
+        str[end] = temp;
+        start++;
+        end--;
+    }
 }
 
 

@@ -27,15 +27,6 @@ uint16_t xorshift(void)
 }
 
 /**
- * @brief Sets the seed for xorshift
- * @param seed
- */
-void seed(uint32_t seed)
-{
-    rng_state = seed;
-}
-
-/**
  * @brief Simulates a dice roll
  * @param num Number of dice to roll
  * @param sides Number of sides for each die
@@ -49,28 +40,4 @@ uint16_t roll(uint8_t num, uint8_t sides)
         total += (xorshift() % sides) + 1;
     }
     return total;
-}
-
-/**
- * @brief Rolls two dice with advantage
- * @param sides Number of sides for each die
- * @return The higher of two rolls
- */
-uint8_t rollAdv(uint8_t sides)
-{
-    uint16_t roll1 = xorshift();
-    uint16_t roll2 = xorshift();
-    return max16(roll1, roll2);
-}
-
-/**
- * @brief Rolls two dice with disadvantage
- * @param sides Number of sides for each die
- * @return The lower of two rolls
- */
-uint8_t rollDis(uint8_t sides)
-{
-    uint16_t roll1 = xorshift();
-    uint16_t roll2 = xorshift();
-    return min16(roll1, roll2);
 }

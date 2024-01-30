@@ -33,10 +33,10 @@ void print(char* str);
 
 /**
  * @brief Converts an unsigned integer to an ASCII string
- * @param uint Unsigned integer
- * @return Pointer to string, memory owned by caller
+ * @param num Unsigned integer
+ * @param str Pointer to string, at least 6 characters long.
  */
-char* uitoa(uint16_t uint);
+void uitoa(unsigned int num, char *str);
 
 /**
  * @brief Debounces and updates an existing ButtonState struct
