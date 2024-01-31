@@ -11,19 +11,19 @@
 uint32_t rng_state = 0x3F3ECBF6; // Static random state
 
 /**
- * @brief An implementation of xorshift. Internally 32 bit.
+ * @brief An implementation of xorshift+. Internally 32 bit.
  * @return The 16-bit LSB of the xorshift state.
  */
 uint16_t xorshift(void)
 {
     uint32_t x = rng_state;
-
+    uint8_t s = (uint8_t)(x); // LSB of x
     x ^= x << 13;
     x ^= x >> 17;
-    x ^= x << 5;
+    x ^= s ^ (x << 5);
 
     rng_state = x;
-    return x;
+    return x + s;
 }
 
 /**
@@ -37,7 +37,7 @@ uint16_t roll(uint8_t num, uint8_t sides)
     uint16_t total = 0;
     for(uint8_t i = 0; i < num; i++)
     {
-        total += (xorshift() % sides) + 1;
+        total += (sides - (xorshift() % (uint16_t)(sides)));
     }
     return total;
 }
