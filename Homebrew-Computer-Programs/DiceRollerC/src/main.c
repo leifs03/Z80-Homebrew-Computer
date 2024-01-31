@@ -30,6 +30,8 @@ int main(void)
 
     while(true)
     {
+        readButtons(&program_state.buttons);
+
         switch(program_state.current_menu)
         {
         case Splash:    mSplash();      break;
@@ -39,8 +41,9 @@ int main(void)
         case DieZero:   mDieZero();     break;
         case DieAnim:   mDieAnim();     break;
         case DieTotal:  mTotal();       break;
+        case DieWompWomp: mWompWomp();  break;
         }
-        xorshift();
-        readButtons(&program_state.buttons);
+        // Use xorshift as busy loop, prevents LCD from flickering
+        for(uint8_t i = 0; i < 10; i++) { xorshift(); }
     }
 }
