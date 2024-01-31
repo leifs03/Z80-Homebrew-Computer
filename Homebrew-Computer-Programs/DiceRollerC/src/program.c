@@ -45,12 +45,7 @@ void mSplash(void)
         lcd_movcur(1, 16); // Move cursor off-screen
     }
 
-    if(
-        (program_state.buttons.l_pressed && program_state.buttons.l_changed) ||
-        (program_state.buttons.d_pressed && program_state.buttons.d_changed) ||
-        (program_state.buttons.u_pressed && program_state.buttons.u_changed) ||
-        (program_state.buttons.r_pressed && program_state.buttons.r_changed)
-    )
+    if(anyButtonPressed())
     {
         reset_menu();
         program_state.current_menu = DieSelect;
@@ -262,34 +257,6 @@ void mDieMod(void)
 
 
 /**
- * @brief Easter egg for having a custom Zero die
- */
-void mDieZero(void)
-{
-    if(!program_state.is_rendered)
-    {
-        program_state.is_rendered = true;
-        print("And nothing");
-        lcd_movcur(1, 0);
-        print("happened...");
-    }
-
-    if(
-        program_state.buttons.l_pressed && program_state.buttons.l_changed || 
-            program_state.buttons.d_pressed && program_state.buttons.d_changed || 
-            program_state.buttons.u_pressed && program_state.buttons.u_changed || 
-            program_state.buttons.r_pressed && program_state.buttons.r_changed
-        )
-    {
-        reset_menu();
-        program_state.die_mod = Reg;
-        program_state.current_menu = DieSelect;
-    }
-}
-
-
-
-/**
  * @brief Small waiting animation for suspense
  */
 void mDieAnim(void)
@@ -320,10 +287,12 @@ void mDieAnim(void)
  */
 void mTotal(void)
 {
+    bool extreme_difference = false;
+
     if(!program_state.is_rendered)
     {
-        uint8_t roll_a;
-        uint8_t roll_b;
+        uint16_t roll_a;
+        uint16_t roll_b;
         char roll_str[6];
 
         program_state.is_rendered = true;
@@ -333,39 +302,131 @@ void mTotal(void)
         roll_a = roll(program_state.die_count, program_state.die_sides);
         roll_b = roll(program_state.die_count, program_state.die_sides);
 
-        if(program_state.die_mod == Adv)
+        if((roll_a == 1 && roll_b == 20) || (roll_b == 1 && roll_a == 20))
         {
-            uitoa(max16(roll_a, roll_b), roll_str);
-            print(roll_str);
-            print(" instead of ");
-            uitoa(min16(roll_a, roll_b), roll_str);
-            print(roll_str);
-        } else if(program_state.die_mod == Dis)
+            extreme_difference = true;
+        }
+
+        // Usually want separate rolls with multiple D20s
+        // Limit of 5 because advanced string rendering is annoying.
+        if(
+            program_state.die_count > 1 &&
+            program_state.die_count < 6 &&
+            program_state.die_sides == 20
+        )
         {
-            uitoa(min16(roll_a, roll_b), roll_str);
-            print(roll_str);
-            print(" instead of ");
-            uitoa(max16(roll_a, roll_b), roll_str);
-            print(roll_str);
+            for(uint8_t i = 0; i < program_state.die_count; i++)
+            {
+                uitoa(roll(1, 20), roll_str);
+                print(roll_str);
+                print(" ");
+            }
         } else
         {
-            uitoa(roll_a, roll_str);
-            print(roll_str);
+            switch(program_state.die_mod)
+            {
+            case Reg:
+            {
+                uitoa(roll_a, roll_str);
+                print(roll_str);
+                break;
+            }
+            case Adv:
+            {
+                uitoa(max16(roll_a, roll_b), roll_str);
+                print(roll_str);
+                print(" instead of ");
+                uitoa(min16(roll_a, roll_b), roll_str);
+                print(roll_str);
+                break;
+            }
+            case Dis:
+            {
+                uitoa(min16(roll_a, roll_b), roll_str);
+                print(roll_str);
+                print(" instead of ");
+                uitoa(max16(roll_a, roll_b), roll_str);
+                print(roll_str);
+                break;
+            }
+            }
         }
 
         lcd_movcur(1, 16);
     }
 
-    // If any button pressed, go back to die select
-    if(
-        (program_state.buttons.l_pressed && program_state.buttons.l_changed) ||
-        (program_state.buttons.d_pressed && program_state.buttons.d_changed) ||
-        (program_state.buttons.u_pressed && program_state.buttons.u_changed) ||
-        (program_state.buttons.r_pressed && program_state.buttons.r_changed)
-    )
+    if(anyButtonPressed())
+    {
+        reset_menu();
+        if(extreme_difference && program_state.die_mod == Dis)
+        {
+            program_state.die_mod = Reg;
+            program_state.current_menu = DieWompWomp;
+        } else
+        {
+            program_state.die_mod = Reg;
+            program_state.current_menu = DieSelect;
+        }
+    }
+}
+
+
+
+/**
+ * @brief Easter egg for having a custom Zero die
+ */
+void mDieZero(void)
+{
+    if(!program_state.is_rendered)
+    {
+        program_state.is_rendered = true;
+        print("And nothing");
+        lcd_movcur(1, 0);
+        print("happened...");
+        lcd_movcur(1, 16);
+    }
+
+    if(anyButtonPressed())
     {
         reset_menu();
         program_state.die_mod = Reg;
         program_state.current_menu = DieSelect;
     }
+}
+
+
+
+/**
+ * @brief Easter egg for rolling a 1 and 20 at disadvantage
+ */
+void mWompWomp(void)
+{
+    if(!program_state.is_rendered)
+    {
+        program_state.is_rendered = true;
+        print("Womp");
+        // Busy wait
+        for(volatile uint16_t i = 0; i < 20000; i++);
+        lcd_movcur(1, 3);
+        print("Womp...");
+        lcd_movcur(1, 16);
+    }
+
+    if(anyButtonPressed())
+    {
+        reset_menu();
+        program_state.current_menu = DieSelect;
+    }
+}
+
+/**
+ * @return Whether any button is newly pressed
+ */
+bool anyButtonPressed(void)
+{
+    return
+    (program_state.buttons.l_pressed && program_state.buttons.l_changed) ||
+    (program_state.buttons.d_pressed && program_state.buttons.d_changed) ||
+    (program_state.buttons.u_pressed && program_state.buttons.u_changed) ||
+    (program_state.buttons.r_pressed && program_state.buttons.r_changed);
 }

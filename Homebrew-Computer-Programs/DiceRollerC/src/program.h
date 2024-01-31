@@ -20,7 +20,8 @@ typedef enum MenuEnum
     DieMod,
     DieZero,
     DieAnim,
-    DieTotal
+    DieTotal,
+    DieWompWomp,
 } MenuEnum;
 
 typedef enum ModEnum
@@ -67,11 +68,6 @@ void mDieCount(void);
 void mDieMod(void);
 
 /**
- * @brief Easter egg for having a custom Zero die
- */
-void mDieZero(void);
-
-/**
  * @brief Small waiting animation for suspense
  */
 void mDieAnim(void);
@@ -80,5 +76,20 @@ void mDieAnim(void);
  * @brief Screen to display the total
  */
 void mTotal(void);
+
+/**
+ * @brief Easter egg for having a custom Zero die
+ */
+void mDieZero(void);
+
+/**
+ * @brief Easter egg for rolling a 1 and 20 at disadvantage
+ */
+void mWompWomp(void);
+
+/**
+ * @return Whether any button is newly pressed
+ */
+bool anyButtonPressed(void);
 
 #endif //DICEROLLERC_PROGRAM_H
