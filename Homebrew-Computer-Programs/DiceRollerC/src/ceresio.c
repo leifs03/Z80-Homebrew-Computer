@@ -47,8 +47,8 @@ void uitoa(unsigned int num, char *str)
     // Convert each digit of the number to ASCII and store in the string
     while (num != 0)
     {
-        char digit = num % 10; // Extract the rightmost digit
-        str[i++] = digit + '0'; // Convert digit to ASCII and store
+        char digit = (char)(num % 10); // Extract the rightmost digit
+        str[i++] = (char)(digit + '0'); // Convert digit to ASCII and store
         num /= 10; // Move to the next digit
     }
 

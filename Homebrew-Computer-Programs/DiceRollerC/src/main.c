@@ -38,9 +38,9 @@ int main(void)
         case DieSelect: mDieSelect();   break;
         case DieCount:  mDieCount();    break;
         case DieMod:    mDieMod();      break;
-        case DieZero:   mDieZero();     break;
         case DieAnim:   mDieAnim();     break;
         case DieTotal:  mTotal();       break;
+        case DieZero:   mDieZero();     break;
         case DieWompWomp: mWompWomp();  break;
         }
         // Use xorshift as busy loop, prevents LCD from flickering

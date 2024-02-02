@@ -6,14 +6,12 @@
  ******************************************************************************/
 
 #include "program.h"
-#include <stdint.h>
 #include "lcd.h"
 #include "ceresio.h"
 #include "rng.h"
 
 // Buffer for menus to place formatted strings
 char fstr[17] = "                "; // Spaces + null terminator
-
 extern ProgramState program_state; // To avoid pointers slowing down code
 
 /**
@@ -26,12 +24,13 @@ void reset_menu(void)
     program_state.current_entry = 0;
 }
 
+
+
 /**
  * @brief Splash screen
  */
 void mSplash(void)
 {
-    // Only print if not printed yet
     if(!program_state.is_rendered)
     {
         program_state.is_rendered = true;
@@ -52,6 +51,9 @@ void mSplash(void)
     }
 }
 
+
+
+// Compiler *really* wants to do heavy stack allocation if these aren't global.
 const char mdieselect_entry_str[] = "D20 D12 D10 D8 D6 D4 D100";
 const uint8_t mdieselect_cursor_positions[7] = { 0, 4, 8, 12, 15, 18, 21 };
 const uint8_t mdieselect_entry_vals[7] = { 20, 12, 10, 8, 6, 4, 100 };
@@ -150,7 +152,7 @@ void mDieCount(void)
     uitoa(program_state.die_sides, &fstr[fstr_index]);
     fstr_index += numdigits(program_state.die_sides);
 
-    for(fstr_index; fstr_index < 16; fstr_index++)
+    for(; fstr_index < 16; fstr_index++)
     {
         fstr[fstr_index] = ' ';
     }
@@ -193,6 +195,8 @@ void mDieCount(void)
     }
 }
 
+
+
 const char mdiemod_entry_str[] = "Reg Adv Dis     ";
 const uint8_t mdiemod_cursor_positions[3] = { 0, 4, 8 };
 const ModEnum mdiemod_entry_vals[3] = { Reg, Adv, Dis };
@@ -202,9 +206,6 @@ const ModEnum mdiemod_entry_vals[3] = { Reg, Adv, Dis };
  */
 void mDieMod(void)
 {
-    // Unlike die select, screen doesn't have to shift.
-    // Makes the code much simpler, anyway.
-
     const uint8_t max_entry = 2;
 
     if(!program_state.is_rendered)
@@ -418,6 +419,8 @@ void mWompWomp(void)
         program_state.current_menu = DieSelect;
     }
 }
+
+
 
 /**
  * @return Whether any button is newly pressed
