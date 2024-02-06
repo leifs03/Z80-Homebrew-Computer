@@ -24,6 +24,8 @@ uint16_t xorshift(void);
  */
 uint16_t roll(uint8_t num, uint8_t sides);
 
+
+
 /**
  * @brief Returns the maximum of a and b
  * @param a
@@ -36,6 +38,8 @@ inline uint16_t max16(uint16_t a, uint16_t b)
     return b;
 }
 
+
+
 /**
  * @brief Returns the minimum of a and b
  * @param a
@@ -47,5 +51,7 @@ inline uint16_t min16(uint16_t a, uint16_t b)
     if(a < b) { return a; }
     return b;
 }
+
+
 
 #endif //DICEROLLERC_RNG_H

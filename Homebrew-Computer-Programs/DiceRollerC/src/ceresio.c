@@ -11,6 +11,8 @@
 
 __sfr __at(0x02) Buttons;
 
+
+
 /**
  * @brief Prints a string to the LCD, unformatted
  * @param str
@@ -32,12 +34,12 @@ void print(char* str)
  * @param num Unsigned integer
  * @param str Pointer to string, at least 6 characters long.
  */
-void uitoa(unsigned int num, char *str)
+void uitoa(unsigned int num, char* str)
 {
     int i = 0;
 
     // Handle the case when num is 0 separately
-    if (num == 0)
+    if(num == 0)
     {
         str[i++] = '0';
         str[i] = '\0';
@@ -45,7 +47,7 @@ void uitoa(unsigned int num, char *str)
     }
 
     // Convert each digit of the number to ASCII and store in the string
-    while (num != 0)
+    while(num != 0)
     {
         char digit = (char)(num % 10); // Extract the rightmost digit
         str[i++] = (char)(digit + '0'); // Convert digit to ASCII and store

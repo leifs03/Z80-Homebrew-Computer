@@ -36,7 +36,7 @@ void print(char* str);
  * @param num Unsigned integer
  * @param str Pointer to string, at least 6 characters long.
  */
-void uitoa(unsigned int num, char *str);
+void uitoa(unsigned int num, char* str);
 
 /**
  * @brief Debounces and updates an existing ButtonState struct

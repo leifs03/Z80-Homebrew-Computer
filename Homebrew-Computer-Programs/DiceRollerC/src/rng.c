@@ -26,6 +26,8 @@ uint16_t xorshift(void)
     return x + s;
 }
 
+
+
 /**
  * @brief Simulates a dice roll
  * @param num Number of dice to roll

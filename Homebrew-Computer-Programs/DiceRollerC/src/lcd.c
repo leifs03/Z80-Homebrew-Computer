@@ -26,7 +26,7 @@ const uint8_t LCDSetCGRAMAddress = 0b01000000; // b0-6 : new address
 void lcd_delay(void)
 {
     // Busy wait... Compiler decided to use IY so this is enough, actually.
-    for(volatile char i = 0; i < 1; ++i);
+    for(volatile char i = 0; i < 1; ++i) {}
 }
 
 

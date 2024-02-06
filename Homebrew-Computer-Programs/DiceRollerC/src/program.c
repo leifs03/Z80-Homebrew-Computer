@@ -38,7 +38,7 @@ void mSplash(void)
         lcd_clear();
         print("DnD Dice Thing");
 
-        lcd_movcur(1,0);
+        lcd_movcur(1, 0);
         print("By Leif");
 
         lcd_movcur(1, 16); // Move cursor off-screen
@@ -57,6 +57,8 @@ void mSplash(void)
 const char mdieselect_entry_str[] = "D20 D12 D10 D8 D6 D4 D100";
 const uint8_t mdieselect_cursor_positions[7] = { 0, 4, 8, 12, 15, 18, 21 };
 const uint8_t mdieselect_entry_vals[7] = { 20, 12, 10, 8, 6, 4, 100 };
+
+
 
 /**
  * @brief Die select screen
@@ -201,6 +203,8 @@ const char mdiemod_entry_str[] = "Reg Adv Dis     ";
 const uint8_t mdiemod_cursor_positions[3] = { 0, 4, 8 };
 const ModEnum mdiemod_entry_vals[3] = { Reg, Adv, Dis };
 
+
+
 /**
  * @brief Die modifier screen (advantage, disadvantage)
  */
@@ -266,7 +270,7 @@ void mDieAnim(void)
     program_state.current_entry++;
 
     // Busy wait
-    for(volatile uint16_t i = 0; i < 20000; i++);
+    for(volatile uint16_t i = 0; i < 20000; i++) {}
 
     if(program_state.current_entry == 3)
     {
@@ -312,9 +316,9 @@ void mTotal(void)
         // Limit of 5 because advanced string rendering is annoying.
         if(
             program_state.die_count > 1 &&
-            program_state.die_count < 6 &&
-            program_state.die_sides == 20
-        )
+                program_state.die_count < 6 &&
+                program_state.die_sides == 20
+            )
         {
             for(uint8_t i = 0; i < program_state.die_count; i++)
             {
@@ -407,7 +411,7 @@ void mWompWomp(void)
         program_state.is_rendered = true;
         print("Womp");
         // Busy wait
-        for(volatile uint16_t i = 0; i < 20000; i++);
+        for(volatile uint16_t i = 0; i < 20000; i++) {}
         lcd_movcur(1, 3);
         print("Womp...");
         lcd_movcur(1, 16);
@@ -428,8 +432,8 @@ void mWompWomp(void)
 bool anyButtonPressed(void)
 {
     return
-    (program_state.buttons.l_pressed && program_state.buttons.l_changed) ||
-    (program_state.buttons.d_pressed && program_state.buttons.d_changed) ||
-    (program_state.buttons.u_pressed && program_state.buttons.u_changed) ||
-    (program_state.buttons.r_pressed && program_state.buttons.r_changed);
+        (program_state.buttons.l_pressed && program_state.buttons.l_changed) ||
+        (program_state.buttons.d_pressed && program_state.buttons.d_changed) ||
+        (program_state.buttons.u_pressed && program_state.buttons.u_changed) ||
+        (program_state.buttons.r_pressed && program_state.buttons.r_changed);
 }
