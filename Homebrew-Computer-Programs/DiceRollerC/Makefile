@@ -2,11 +2,12 @@
 
 PROJECT_NAME := DiceRoller
 
-CC := sdcc
-AS := sdasz80
-LD := sdcc
+CC := sdcc-sdcc
+AS := sdcc-sdasz80
+LD := sdcc-sdcc
+HEX := sdcc-makebin
 
-CFLAGS := -mz80 -c --allow-unsafe-read --opt-code-size --max-allocs-per-node 20000 --std sdcc99
+CFLAGS := -mz80 -c --allow-unsafe-read --opt-code-size --max-allocs-per-node 20000 --std-sdcc99
 AFLAGS := -g
 LFLAGS := -mz80 --no-std-crt0 --data-loc 0x8000 --code-loc 0x0100
 
@@ -48,7 +49,7 @@ $(IHX): $(ORDERED_OBJS) $(OBJS)
 
 $(BIN): $(IHX)
 	mkdir -p $(@D)
-	makebin -p -s 0x2000 < $< > $@
+	$(HEX) -p -s 0x2000 < $< > $@
 
 
 
